@@ -13,23 +13,7 @@ type GitDir struct {
 	Dir  string
 }
 
-type ObjectType int
-
-const (
-	Blob = iota + 1
-	Commit
-)
-
-func (obj ObjectType) getDirName() string {
-	dirs := []string {
-		"objects/",
-		"commits/"
-	}
-
-	return dirs[obj]
-}
-
-func (git *GitDir) ReadObject(hash string, objectType ) (string, error) {
+func (git *GitDir) ReadObject(hash string) (string, error) {
 	objDir := git.Dir + "objects/" + hash[:2] + "/" + hash[2:]
 	file, err := os.Open(objDir)
 	// stats, err := os.Stat(objDir)
@@ -51,10 +35,6 @@ func (git *GitDir) ReadObject(hash string, objectType ) (string, error) {
 	fmt.Println(contents.String)
 
 	return contents.String(), nil
-}
-
-func (git *GitDir) ReadCommit(hash string) (string, error) {
-	
 }
 
 func NewGitDir(project string) (*GitDir, error) {
