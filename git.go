@@ -32,7 +32,7 @@ func (git *GitDir) ReadObject(hash string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(contents.String)
+	fmt.Println(contents.String())
 
 	return contents.String(), nil
 }
