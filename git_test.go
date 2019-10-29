@@ -1,7 +1,6 @@
 package goTree
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -22,6 +21,12 @@ func TestNewGitDir(t *testing.T) {
 }
 
 func TestReadObject(t *testing.T) {
+	expectedContents := `commit 203tree 380fcea7b4540e995f05504e9d2bad1eb87282bb
+	author Ryan Lokugamage <Ryan.Lokugamage@cerner.com> 1572387473 -0500
+	committer Ryan Lokugamage <Ryan.Lokugamage@cerner.com> 1572387473 -0500
+	
+	initial commit
+	`
 	gitDir, err := NewGitDir("./testProj")
 	if err != nil {
 		t.Error(err.Error())
@@ -31,5 +36,7 @@ func TestReadObject(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	fmt.Println(actual)
+	if expectedContents != actual {
+		t.Errorf("expected %s but got %s", expectedContents, actual)
+	}
 }
