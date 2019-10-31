@@ -2,7 +2,6 @@ package goTree
 
 import (
 	"compress/zlib"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -16,7 +15,6 @@ type GitDir struct {
 func (git *GitDir) ReadObject(hash string) (string, error) {
 	objDir := git.Dir + "objects/" + hash[:2] + "/" + hash[2:]
 	file, err := os.Open(objDir)
-	// stats, err := os.Stat(objDir)
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +30,6 @@ func (git *GitDir) ReadObject(hash string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(contents.String())
 
 	return contents.String(), nil
 }

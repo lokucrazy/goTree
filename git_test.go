@@ -1,6 +1,9 @@
 package goTree
 
 import (
+	"errors"
+	"os"
+	"reflect"
 	"testing"
 )
 
@@ -21,22 +24,33 @@ func TestNewGitDir(t *testing.T) {
 }
 
 func TestReadObject(t *testing.T) {
-	expectedContents := `commit 203tree 380fcea7b4540e995f05504e9d2bad1eb87282bb
-	author Ryan Lokugamage <Ryan.Lokugamage@cerner.com> 1572387473 -0500
-	committer Ryan Lokugamage <Ryan.Lokugamage@cerner.com> 1572387473 -0500
-	
-	initial commit
-	`
+	expectedContents := `commit 203` + "\x00" + `tree 380fcea7b4540e995f05504e9d2bad1eb87282bb
+author Ryan Lokugamage <Ryan.Lokugamage@cerner.com> 1572387473 -0500
+committer Ryan Lokugamage <Ryan.Lokugamage@cerner.com> 1572387473 -0500
+
+initial commit
+`
 	gitDir, err := NewGitDir("./testProj")
 	if err != nil {
 		t.Error(err.Error())
 	}
-
 	actual, err := gitDir.ReadObject("1038930c0737f81c3713fc74f3523f29614b4fdb")
 	if err != nil {
 		t.Error(err.Error())
 	}
 	if expectedContents != actual {
 		t.Errorf("expected %s but got %s", expectedContents, actual)
+	}
+}
+
+func TestReadObject_FailsWhenBadGitDir(t *testing.T) {
+	gitDir, _ := NewGitDir("fakeProject")
+	_, err := gitDir.ReadObject("1038930c0737f81c3713fc74f3523f29614b4fdb")
+	if err == nil {
+		t.Error("expected err to not be nil but got nil")
+	}
+	var e *os.PathError
+	if !errors.As(err, &e) {
+		t.Errorf("expected %v but got %v", reflect.TypeOf(e), reflect.TypeOf(err))
 	}
 }
