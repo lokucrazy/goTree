@@ -20,6 +20,32 @@ type Commit struct {
 	Committer string
 }
 
+type Tree struct {
+	Commit *Commit
+	Prev   *Commit
+	Next   *Commit
+}
+
+func (git *GitDir) GenerateTree() (*Tree, error) {
+	file, err := os.Open(git.Dir + "refs/heads/")
+	if err != nil {
+		return nil, err
+	}
+	heads, err := file.Readdirnames(0)
+	if err != nil {
+		return nil, err
+	}
+	refs := make([]string, len(heads))
+	for i, head := range heads {
+		refs[i], err = git.ReadRef(head)
+		if err != nil {
+			refs[i] = ""
+		}
+	}
+
+	return nil, nil
+}
+
 func (git *GitDir) ReadObject(hash string) (string, error) {
 	objDir := git.Dir + "objects/" + hash[:2] + "/" + hash[2:]
 	file, err := os.Open(objDir)
