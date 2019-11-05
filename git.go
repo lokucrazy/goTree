@@ -2,7 +2,6 @@ package goTree
 
 import (
 	"compress/zlib"
-	"errors"
 	"io"
 	"os"
 	"regexp"
@@ -39,13 +38,28 @@ func (git *GitDir) ReadObject(hash string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return strings.TrimRight(contents.String(), "\n"), nil
+}
 
-	return contents.String(), nil
+func (git *GitDir) ReadRef(name string) (string, error) {
+	refDir := git.Dir + "refs/heads/" + name
+	file, err := os.Open(refDir)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	var hash strings.Builder
+	_, err = io.Copy(&hash, file)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimRight(hash.String(), "\n"), nil
 }
 
 func (*GitDir) ParseCommit(text string) (*Commit, error) {
 	if text == "" {
-		return nil, errors.New("cannot parse empty text")
+		return nil, parseError
 	}
 	var tree, parent, author, committer string
 	treeMatcher := regexp.MustCompile(`(?:tree) (.*)`)
@@ -58,7 +72,7 @@ func (*GitDir) ParseCommit(text string) (*Commit, error) {
 	findAuthor := authorMatcher.FindStringSubmatch(text)
 	findCommitter := committerMatcher.FindStringSubmatch(text)
 	if findTree == nil && findParent == nil && findAuthor == nil && findCommitter == nil {
-		return nil, errors.New("Could not parse/find commit fields")
+		return nil, matchError
 	}
 	if findTree != nil {
 		tree = findTree[1]
