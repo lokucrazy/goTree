@@ -54,3 +54,36 @@ func TestReadObject_FailsWhenBadGitDir(t *testing.T) {
 		t.Errorf("expected %v but got %v", reflect.TypeOf(e), reflect.TypeOf(err))
 	}
 }
+
+func TestParseCommit(t *testing.T) {
+	expectedCommit := Commit{
+		"380fcea7b4540e995f05504e9d2bad1eb87282bb",
+		"",
+		"Ryan Lokugamage",
+		"Ryan Lokugamage",
+	}
+	gitDir, err := NewGitDir("./testProj")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	text, err := gitDir.ReadObject("1038930c0737f81c3713fc74f3523f29614b4fdb")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	actual, err := gitDir.ParseCommit(text)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if expectedCommit.Tree != actual.Tree {
+		t.Errorf("expected %s but got %s", expectedCommit.Tree, actual.Tree)
+	}
+	if expectedCommit.Parent != actual.Parent {
+		t.Errorf("expected %s but got %s", expectedCommit.Parent, actual.Parent)
+	}
+	if expectedCommit.Author != actual.Author {
+		t.Errorf("expected %s but got %s", expectedCommit.Author, actual.Author)
+	}
+	if expectedCommit.Committer != actual.Committer {
+		t.Errorf("expected %s but got %s", expectedCommit.Committer, actual.Committer)
+	}
+}
